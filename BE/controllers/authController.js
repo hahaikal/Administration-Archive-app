@@ -29,15 +29,15 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
-    if (!user) return res.status(400).json({ msg: "User not Found" });
+    if (!user) return res.status(400).json({ message: "User not Found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: "Password is Incorrect" });
+    if (!isMatch) return res.status(400).json({ message: "Password is Incorrect" });
 
     const token = generateToken(user);
 
     res.json({ token, user: { name: user.name, role: user.role } });
   } catch (err) {
-    res.status(500).json({ msg: "Server error", err });
+    res.status(500).json({ message: "Server error", err });
   }
 };

@@ -3,7 +3,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
 
-const postRoutes = require("./routes/authRoutes");
+const authRoutes = require("./routes/authRoutes");
 const letterRoutes = require("./routes/letterRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
@@ -14,7 +14,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/", postRoutes);
+app.use("/", authRoutes);
 app.use("/", letterRoutes);
 app.use("/admin", adminRoutes);
 

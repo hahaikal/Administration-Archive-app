@@ -47,8 +47,8 @@ exports.getAllLetter = async (req, res) => {
       ];
     }
 
-    const letter = await Letter.find(filter).sort({ createdAt: -1 });
-    res.json(letter);
+    const data = await Letter.find(filter).sort({ createdAt: -1 })
+    res.json({ data });
   } catch (err) {
     res.status(500).json({ msg: "Failed to get Letter", err });
   }
