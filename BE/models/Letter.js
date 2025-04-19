@@ -9,7 +9,10 @@ const letterSchema = new mongoose.Schema({
   title: String,
   date: Date,
   category: String,
-  type: { type: String, enum: ["in", "out"], default: "out" },
+  type: { 
+    type: String, 
+    enum: ["in", "out"]
+  },
   fileUrl: String,
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Letter" },
   createdAt: { type: Date, default: Date.now },
