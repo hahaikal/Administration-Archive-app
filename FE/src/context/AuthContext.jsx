@@ -20,18 +20,20 @@ export const AuthProvider = ({ children }) => {
     const checkToken = async () => {
       try {
         const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const userDataString = localStorage.getItem('user');
         if (token) {
           const decodedToken = jwtDecode(token);
           const currentTime = Date.now() / 1000;
           
           if (decodedToken.exp < currentTime) {
             localStorage.removeItem('token');
+            localStorage.removeItem('user');
             setUser(null);
           } else {
+            const userData = userDataString ? JSON.parse(userDataString) : null;
             setUser({
-              name: userData.name,
-              role: userData.role
+              name: userData?.name,
+              role: userData?.role
             });
             
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -40,6 +42,7 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Error checking authentication:', error);
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
       } finally {
         setIsLoading(false);
       }
@@ -55,7 +58,7 @@ export const AuthProvider = ({ children }) => {
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
-      localStorage.setItem('user', user);
+      localStorage.setItem('user', JSON.stringify(user));
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       setUser({
@@ -72,6 +75,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
   };

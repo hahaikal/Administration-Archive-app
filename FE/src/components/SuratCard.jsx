@@ -30,7 +30,7 @@ const SuratCard = ({ surat, onDelete }) => {
       <div className="p-5">
         <div className="flex justify-between items-start">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-1">{surat.title}</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-1">{surat.title.toLowerCase().replace(/\b\w/g, char => char.toUpperCase())}</h3>
             <p className="text-sm text-gray-600 mb-2">{surat.number}</p>
           </div>
           <div className="relative">

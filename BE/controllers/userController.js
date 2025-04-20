@@ -5,26 +5,31 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.find().select("-password");
     res.json(users);
   } catch (err) {
-    res.status(500).json({ msg: "Failed to retrieve data ", err });
+    res.status(500).json({ message: "Failed to retrieve data ", err });
   }
 };
 
 exports.updateUserRole = async (req, res) => {
     try {
       const { id } = req.params;
-      const { role } = req.body;
+      const { name, email, role, password } = req.body;
   
       if (!["admin", "guru", "kepala sekolah"].includes(role)) {
-        return res.status(400).json({ msg: "Invalid Role" });
+        return res.status(400).json({ message: "Invalid Role" });
       }
   
-      const user = await User.findByIdAndUpdate(id, { role }, { new: true }).select("-password");
+      const updateData = { name, email, role };
+      if (password) {
+        updateData.password = password;
+      }
+
+      const user = await User.findByIdAndUpdate(id, updateData, { new: true });
   
-      if (!user) return res.status(404).json({ msg: "User not Found" });
+      if (!user) return res.status(404).json({ message: "User not Found" });
   
-      res.json({ msg: "User role successfully updated", user });
+      res.json({ message: "User role successfully updated", user });
     } catch (err) {
-      res.status(500).json({ msg: "Failed to Update Role", err });
+      res.status(500).json({ message: "Failed to Update Role", err });
     }
 };
 
@@ -33,11 +38,11 @@ exports.deleteUser = async (req, res) => {
       const { id } = req.params;
   
       const user = await User.findByIdAndDelete(id);
-      if (!user) return res.status(404).json({ msg: "User not Found" });
+      if (!user) return res.status(404).json({ message: "User not Found" });
   
-      res.json({ msg: "Succesfully deleted user" });
+      res.json({ message: "Succesfully deleted user" });
     } catch (err) {
-      res.status(500).json({ msg: "Failed to delete user", err });
+      res.status(500).json({ message: "Failed to delete user", err });
     }
 };
   

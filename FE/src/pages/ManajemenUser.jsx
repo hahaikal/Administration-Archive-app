@@ -39,7 +39,7 @@ const ManajemenUser = () => {
     const fetchUsers = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get('/users');
+        const response = await api.get('admin/users');
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -85,14 +85,14 @@ const ManajemenUser = () => {
       setSuccess('');
       
       if (modalMode === 'add') {
-        const response = await api.post('/users', {
+        const response = await api.post('register', {
           name,
           email,
           password,
           role,
         });
         
-        setUsers([...users, response.data]);
+        setUsers([...users, response.data.user]);
         setSuccess('Pengguna berhasil ditambahkan');
         
       } else if (modalMode === 'edit' && currentUser) {
@@ -102,21 +102,19 @@ const ManajemenUser = () => {
           role,
         };
         
-        // Only include password if it's provided
         if (password) {
           userData.password = password;
         }
         
-        const response = await api.put(`/users/${currentUser.id}`, userData);
+        const response = await api.put(`admin/users/${currentUser._id}`, userData);
         
         setUsers(users.map(user => 
-          user.id === currentUser.id ? response.data : user
+          user._id === currentUser._id ? response.data.user : user
         ));
         
         setSuccess('Pengguna berhasil diperbarui');
       }
       
-      // Close modal after 1.5 seconds
       setTimeout(() => {
         setShowModal(false);
         resetForm();
@@ -138,11 +136,10 @@ const ManajemenUser = () => {
     }
     
     try {
-      await api.delete(`/users/${userId}`);
-      setUsers(users.filter(user => user.id !== userId));
+      await api.delete(`admin/users/${userId}`);
+      setUsers(users.filter(user => user._id !== userId));
       setSuccess('Pengguna berhasil dihapus');
       
-      // Hide success message after 3 seconds
       setTimeout(() => {
         setSuccess('');
       }, 3000);
@@ -155,18 +152,17 @@ const ManajemenUser = () => {
         setError('Terjadi kesalahan saat menghapus pengguna');
       }
       
-      // Hide error message after 3 seconds
       setTimeout(() => {
         setError('');
       }, 3000);
     }
   };
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredUsers = users.filter(user => 
+  (user.name?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
+  (user.email?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
+  (user.role?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
+);
 
   const formatRole = (role) => {
     switch (role) {
@@ -268,12 +264,12 @@ const ManajemenUser = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredUsers.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
+                  {filteredUsers.map((user, index) => (
+                    <tr key={(user.id || user._id) + '-' + index} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
-                            {user.name.charAt(0).toUpperCase()}
+                            {user.name?.charAt(0).toUpperCase()}
                           </div>
                           <div className="ml-3">
                             <div className="text-sm font-medium text-gray-900">{user.name}</div>
@@ -302,7 +298,7 @@ const ManajemenUser = () => {
                           <Edit size={16} />
                         </button>
                         <button
-                          onClick={() => handleDeleteUser(user.id)}
+                          onClick={() => handleDeleteUser(user.id || user._id)}
                           className="text-red-600 hover:text-red-800"
                         >
                           <Trash2 size={16} />
@@ -317,7 +313,6 @@ const ManajemenUser = () => {
         </div>
       </div>
 
-      {/* Modal for Add/Edit User */}
       {showModal && (
         <div className="fixed inset-0 overflow-y-auto z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black opacity-30"></div>
@@ -411,7 +406,7 @@ const ManajemenUser = () => {
                   >
                     <option value="admin">Administrator</option>
                     <option value="guru">Guru</option>
-                    <option value="kepala_sekolah">Kepala Sekolah</option>
+                    <option value="kepala sekolah">Kepala Sekolah</option>
                   </select>
                 </div>
               </div>

@@ -19,7 +19,7 @@ exports.uploadLetter = async (req, res) => {
       createdBy: req.user.id,
     });
 
-    res.status(201).json({ msg: "Letter successfully uploaded", letter });
+    res.status(201).json({ message: "Letter successfully uploaded", letter });
   } catch (err) {
     console.error(err);
     if (req.file && req.file.path) {
@@ -29,7 +29,7 @@ exports.uploadLetter = async (req, res) => {
         }
       });
     }
-    res.status(500).json({ msg: "Letter failed to upload", err });
+    res.status(500).json({ message: "Letter failed to upload", err });
   }
 };
 
@@ -50,14 +50,14 @@ exports.getAllLetter = async (req, res) => {
     const data = await Letter.find(filter).sort({ createdAt: -1 })
     res.json({ data });
   } catch (err) {
-    res.status(500).json({ msg: "Failed to get Letter", err });
+    res.status(500).json({ message: "Failed to get Letter", err });
   }
 };
 
 exports.deleteLetter = async (req, res) => {
   try {
     const letter = await Letter.findByIdAndDelete(req.params.id);
-    if (!letter) return res.status(404).json({ msg: "Letter not Found" });
+    if (!letter) return res.status(404).json({ message: "Letter not Found" });
 
     if (letter.fileUrl) {
       fs.unlink(letter.fileUrl, (unlinkErr) => {
@@ -67,8 +67,8 @@ exports.deleteLetter = async (req, res) => {
       });
     }
 
-    res.json({ msg: "Letter successfully Deleted" });
+    res.json({ message: "Letter successfully Deleted" });
   } catch (err) {
-    res.status(500).json({ msg: "Failed to Delete", err });
+    res.status(500).json({ message: "Failed to Delete", err });
   }
 };

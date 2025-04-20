@@ -18,7 +18,14 @@ exports.register = async (req, res) => {
     const newUser = await User.create({name, email, password, role});
     const token = generateToken(newUser);
 
-    res.status(201).json({token, user: {name: newUser.name, role: newUser.role}});
+    // Exclude password from the user object before sending response
+    const userResponse = {
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role
+    };
+    res.status(201).json({token, user: userResponse});
   } catch (error) {
     res.status(500).json({ message: 'Server error', error});
   }

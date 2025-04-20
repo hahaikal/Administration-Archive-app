@@ -22,7 +22,7 @@ const extractFromPDF = async (filePath, category) => {
   }
 
   if (category === "Surat Keputusan") {
-    title = text.match(/Tentang\s*([\s\S]*?)(?=\n)/)?.[1] || "not found";
+    title = text.match(/TENTANG\s*([\s\S]*?)(?=\n)/)?.[1] || "not found";
   } else if (category === "Surat Permohonan") {
     title = text.match(/Perihal\s+\t*:\s*(.+?)(?=\s*Kepada)/)?.[1] || "not found";
   } else {
