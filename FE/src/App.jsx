@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import UploadSurat from './pages/UploadSurat';
 import ManajemenUser from './pages/ManajemenUser';
@@ -17,6 +18,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
+      <Route path="register" element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />} />
       
       <Route path="/" element={<ProtectedRoute />}>
         <Route index element={<Navigate to="/dashboard" />} />

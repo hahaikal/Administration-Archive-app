@@ -23,7 +23,6 @@ const Login = () => {
       setError('');
       setIsLoading(true);
       await login(email, password);
-      // navigate('/dashboard');
     } catch (err) {
       if (err.response?.data?.message) {
         setError("Incorrect email or password");
@@ -117,6 +116,9 @@ const Login = () => {
               </button>
             </div>
           </form>
+            <p className="mt-2 text-center text-sm text-black-600">
+              Belum punya akun? klik <a href="/register" className="font-medium text-primary-600 hover:text-primary-500">Daftar</a>
+            </p>
         </div>
       </div>
     </div>

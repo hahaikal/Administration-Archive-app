@@ -1,6 +1,9 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const sendEmail = require('../utils/sendMail');
+
+const otpStore = new Map();
 
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -15,18 +18,48 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-    const newUser = await User.create({name, email, password, role});
-    const token = generateToken(newUser);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = Date.now() + 5 * 60 * 1000;
 
-    const userResponse = {
-      _id: newUser._id,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role
-    };
-    res.status(201).json({token, user: userResponse});
+    otpStore.set(email, { otp, otpExpiry, name, password, role });
+
+    await sendEmail(email, 'Kode OTP Verifikasi', `Kode OTP kamu: ${otp}`);
+
+    res.json({ message: 'Kode OTP telah dikirim. Silakan verifikasi OTP untuk melanjutkan pendaftaran.' });
   } catch (error) {
+    console.error('Error sending email:', error);
     res.status(500).json({ message: 'Server error', error});
+  }
+}
+
+exports.verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const otpData = otpStore.get(email);
+
+    if (!otpData) {
+      return res.status(400).json({ message: 'OTP tidak ditemukan atau sudah kadaluarsa.' });
+    }
+
+    if (Date.now() > otpData.otpExpiry) {
+      otpStore.delete(email);
+      return res.status(400).json({ message: 'OTP sudah kadaluarsa.' });
+    }
+
+    const { name, password, role, otpExpiry} = otpData;
+    const otpp = otpData.otp
+    if (otpData.otp !== otp) {
+      return res.status(400).json({ message: 'OTP salah banget xixi.' , name, otpp, otpExpiry });
+    } else if (otpData.otp === otp) {
+      const user = new User({ name, email, password, role });
+      await user.save();
+      otpStore.delete(email);
+    }
+    
+    res.status(201).json({ message: 'Pendaftaran berhasil. Anda dapat login sekarang.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
   }
 }
 
