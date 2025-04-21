@@ -35,7 +35,7 @@ exports.uploadLetter = async (req, res) => {
 
 exports.getAllLetter = async (req, res) => {
   try {
-    const { search, category , type } = req.query;
+    const { search, category , type, date } = req.query;
 
     let filter = {};
     if (category) filter.category = category;
@@ -45,6 +45,13 @@ exports.getAllLetter = async (req, res) => {
         { nomor: { $regex: search, $options: "i" } },
         { title: { $regex: search, $options: "i" } },
       ];
+    }
+    if (date) {
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+      filter.date = { $gte: start, $lte: end };
     }
 
     const data = await Letter.find(filter).sort({ createdAt: -1 })

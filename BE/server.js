@@ -2,7 +2,7 @@ const app = require('./index')
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 const mongoURI = process.env.ATLAS_CONNECTION;
 
 mongoose.connect(mongoURI, {

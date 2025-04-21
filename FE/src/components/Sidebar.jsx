@@ -35,7 +35,7 @@ const Sidebar = () => {
     },
     {
       name: 'Daftar Arsip',
-      path: '/dokumen',
+      path: 'arsip',
       icon: <FileText size={20} />,
       allowedRoles: ['admin', 'guru', 'kepala_sekolah'],
     },

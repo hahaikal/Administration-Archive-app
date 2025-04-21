@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const token = localStorage.getItem('token');
         const userDataString = localStorage.getItem('user');
-        if (token) {
+        if (token) {  
           const decodedToken = jwtDecode(token);
           const currentTime = Date.now() / 1000;
           
@@ -33,7 +33,8 @@ export const AuthProvider = ({ children }) => {
             const userData = userDataString ? JSON.parse(userDataString) : null;
             setUser({
               name: userData?.name,
-              role: userData?.role
+              role: userData?.role,
+              id: userData?.id
             });
             
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -63,7 +64,8 @@ export const AuthProvider = ({ children }) => {
       
       setUser({
         name: user.name,
-        role: user.role
+        role: user.role,
+        id: user.id
       });
     } catch (error) {
       console.error('Login error:', error);

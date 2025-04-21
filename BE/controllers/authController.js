@@ -18,7 +18,6 @@ exports.register = async (req, res) => {
     const newUser = await User.create({name, email, password, role});
     const token = generateToken(newUser);
 
-    // Exclude password from the user object before sending response
     const userResponse = {
       _id: newUser._id,
       name: newUser.name,
@@ -43,7 +42,7 @@ exports.login = async (req, res) => {
 
     const token = generateToken(user);
 
-    res.json({ token, user: { name: user.name, role: user.role } });
+    res.json({ token, user: { name: user.name, role: user.role, id: user._id } });
   } catch (err) {
     res.status(500).json({ message: "Server error", err });
   }

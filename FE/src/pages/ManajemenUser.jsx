@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 const ManajemenUser = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -134,6 +134,7 @@ const ManajemenUser = () => {
     if (!confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
       return;
     }
+    if(userId === user.id) return setError('Anda tidak dapat menghapus akun Anda sendiri');
     
     try {
       await api.delete(`admin/users/${userId}`);

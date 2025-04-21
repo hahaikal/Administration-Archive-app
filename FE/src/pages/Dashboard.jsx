@@ -136,7 +136,7 @@ const Dashboard = () => {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">Dokumen Terbaru</h2>
-          <a href="/dokumen" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+          <a href="/arsip" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
             Lihat Semua
           </a>
         </div>
@@ -144,7 +144,7 @@ const Dashboard = () => {
         {recentDocuments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {recentDocuments.map((doc, index) => (
-              <SuratCard key={doc.id ?? index} surat={doc} />
+              <SuratCard key={doc._id} surat={doc} />
             ))}
           </div>
         ) : (

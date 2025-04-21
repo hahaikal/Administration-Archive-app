@@ -12,7 +12,6 @@ const suratService = {
     return response.data;
   },
 
-  // Create a new surat
   create: async (formData) => {
     const response = await api.post('upload', formData, {
       headers: {
@@ -32,22 +31,40 @@ const suratService = {
     return response.data;
   },
 
-  // Delete a surat
   delete: async (id) => {
     const response = await api.delete(`/surat/${id}`);
     return response.data;
   },
 
-  // Get document statistics
   getStatistics: async () => {
+    const letterResponse = await api.get('getAllDoc');
+    const userResponse = await api.get('admin/users');
+    const letters = letterResponse.data.data;
+
+    const suratByJenis = {};
+    letters.forEach((letter) => {
+      const category = letter.category || 'unknown';
+      suratByJenis[category] = (suratByJenis[category] || 0) + 1;
+    });
+
+    const today = new Date();
+    const suratToday = letters.filter((letter) => {
+      const uploadDate = new Date(letter.createdAt);
+      return (
+        uploadDate.getDate() === today.getDate() &&
+        uploadDate.getMonth() === today.getMonth() &&
+        uploadDate.getFullYear() === today.getFullYear()
+      );
+    }).length;
+
     const response = {
       data: {
-        totalSurat: 100,
-        totalUsers: 50,
-        suratToday: 30,
-        suratByJenis: ['keluar', 'masuk', 'disposisi']
+        totalSurat: letters.length,
+        totalUsers: userResponse.data.length,
+        suratToday,
+        suratByJenis,
       }
-    }
+    };
     return response.data;
   }
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Bell, Search, User, LogOut, Menu } from 'lucide-react';
+import { Bell, Search, LogOut, Menu } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -92,16 +92,9 @@ const Navbar = () => {
                       {user?.role === 'admin' ? 'Administrator' : user?.role === 'kepala_sekolah' ? 'Kepala Sekolah' : 'Guru'}
                     </p>
                   </div>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 items-center"
-                  >
-                    <User size={16} className="mr-2" />
-                    Profil Saya
-                  </a>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 items-center"
+                    className="flex w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 items-center"
                   >
                     <LogOut size={16} className="mr-2" />
                     Keluar

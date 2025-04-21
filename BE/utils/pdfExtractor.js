@@ -15,6 +15,10 @@ const extractFromPDF = async (filePath, category) => {
     const match = text.match(/Nomor\s*:\s*422\.5\/SDN-003\/05\/(\d{4}\/\d+)/)?.[1];
     const [year, numberLatter] = match.split("/");
     number = `Nomor ${numberLatter} Tahun ${year}`;
+  } else if (category === "Surat Pindah Keluar") {
+    const match = text.match(/Nomor\:\s*422\/SDN-003\/02\/(.+)/)?.[1];
+    const [year, numberLatter] = match.split("/");
+    number = `Nomor ${numberLatter}Tahun ${year}`;
   } else {
     const match = text.match(/Nomor\s*:\s*422\/SDN-003\/05\/(.+)/i)?.[1];
     const [year, numberLatter] = match.split("/");
@@ -23,10 +27,12 @@ const extractFromPDF = async (filePath, category) => {
 
   if (category === "Surat Keputusan") {
     title = text.match(/TENTANG\s*([\s\S]*?)(?=\n)/)?.[1] || "not found";
+    matchDate = text.match(/Pada Tanggal :\s*(.*)/)?.[1];
   } else if (category === "Surat Permohonan") {
     title = text.match(/Perihal\s+\t*:\s*(.+?)(?=\s*Kepada)/)?.[1] || "not found";
   } else {
     title = text.match(/SURAT\s*(.+)/)?.[1] || "not found";
+    matchDate = text.match(/Bagan Batu Kota,\s*(\d{1,2}\s+\w+\s+\d{4})/)?.[1];
   }
 
   const monthMap = {
@@ -43,12 +49,7 @@ const extractFromPDF = async (filePath, category) => {
     "November": "November",
     "Desember": "December"
   };
-
-  if (category === "Surat Keputusan") {
-    matchDate = text.match(/Pada Tanggal :\s*(.*)/)?.[1];
-  } else {
-    matchDate = text.match(/Bagan Batu Kota,\s*(\d{1,2}\s+\w+\s+\d{4})/)?.[1];
-  }
+  
   const dateParts = matchDate.split(" ");
   const day = parseInt(dateParts[0], 10);
   const monthName = dateParts[1];
