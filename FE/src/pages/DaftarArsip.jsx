@@ -12,27 +12,27 @@ const DaftarArsip = () => {
   const [dateFilter, setDateFilter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const fetchDocuments = async () => {
+    setIsLoading(true);
+    try {
+      const params = {};
+      if (searchTerm) params.search = searchTerm;
+      if (categoryFilter) params.category = categoryFilter;
+      if (typeFilter) params.type = typeFilter;
+      if (dateFilter) params.date = dateFilter;
+
+      const data = await suratService.getAll(params);
+      const { suratByJenis } = await suratService.getStatistics();
+      setCategories(Object.keys(suratByJenis));
+      setDocuments(data.data || []);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDocuments = async () => {
-      setIsLoading(true);
-      try {
-        const params = {};
-        if (searchTerm) params.search = searchTerm;
-        if (categoryFilter) params.category = categoryFilter;
-        if (typeFilter) params.type = typeFilter;
-        if (dateFilter) params.date = dateFilter;
-
-        const data = await suratService.getAll(params);
-        const { suratByJenis } = await suratService.getStatistics();
-        setCategories(Object.keys(suratByJenis));
-        setDocuments(data.data || []);
-      } catch (error) {
-        console.error('Error fetching documents:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchDocuments();
   }, [searchTerm, categoryFilter, typeFilter, dateFilter]);
 
@@ -104,7 +104,7 @@ const DaftarArsip = () => {
           ) : documents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {documents.map((doc, index) => (
-                <SuratCard key={doc._id ?? index} surat={doc} />
+                <SuratCard key={doc._id ?? index} surat={doc} onDeleteSuccess={fetchDocuments} />
               ))}
             </div>
           ) : (
@@ -119,4 +119,3 @@ const DaftarArsip = () => {
 };
 
 export default DaftarArsip;
-

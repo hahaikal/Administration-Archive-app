@@ -60,7 +60,7 @@ const UploadSurat = () => {
       setFile(null);
       
       setTimeout(() => {
-        navigate('/dokumen');
+        navigate('/arsip');
       }, 2000);
       
     } catch (error) {

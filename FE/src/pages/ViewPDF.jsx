@@ -23,7 +23,7 @@ const ViewPDF = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`http://localhost:3000/${filePath}`);
+        const response = await fetch(`http://localhost:5000/${filePath}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -34,6 +34,7 @@ const ViewPDF = () => {
         setFileUrl(url);
       } catch (err) {
         setError(err.message);
+        console.log(file)
       } finally {
         setLoading(false);
       }

@@ -4,7 +4,7 @@ import { File, Download, Trash2, Eye, MoreVertical } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 
-const SuratCard = ({ surat }) => {
+const SuratCard = ({ surat, onDeleteSuccess }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { isAdmin } = useAuth();
   const [deleting, setDeleting] = useState(false);
@@ -61,6 +61,9 @@ const SuratCard = ({ surat }) => {
       setDeleting(true);
       await suratService.delete(id);
       alert('Surat berhasil dihapus');
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      }
     } catch (error) {
       alert('Gagal menghapus surat: ' + (error.message || error));
     } finally {
@@ -145,4 +148,4 @@ const SuratCard = ({ surat }) => {
   );
 };
 
-export default SuratCard
+export default SuratCard;
