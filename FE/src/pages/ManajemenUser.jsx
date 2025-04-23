@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { PopUp, ConfirmPopUp, AlertPopUp } from '../components/PopUp';
 import { useAuth } from '../context/AuthContext';
 import { 
   Users, 
@@ -26,28 +27,34 @@ const ManajemenUser = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('guru');
+  const [responseMsg, setResponseMsg] = useState('');
+  const [otp, setOtp] = useState('');
   
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get('admin/users');
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!isAdmin()) {
       return;
     }
-    
-    const fetchUsers = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get('admin/users');
-        setUsers(response.data);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchUsers();
   }, [isAdmin]);
 
@@ -70,8 +77,8 @@ const ManajemenUser = () => {
 
   const resetForm = () => {
     setName('');
-    setEmail('');
     setPassword('');
+    setConfirmPassword('');
     setRole('guru');
     setError('');
     setSuccess('');
@@ -83,8 +90,21 @@ const ManajemenUser = () => {
     try {
       setError('');
       setSuccess('');
+      setIsSubmitting(true);
       
       if (modalMode === 'add') {
+        if (!name || !email || !password) {
+          setError('Semua kolom harus diisi');
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          setError('Password tidak cocok');
+          setIsSubmitting(false);
+          return;
+        }
+
         const response = await api.post('register', {
           name,
           email,
@@ -92,8 +112,7 @@ const ManajemenUser = () => {
           role,
         });
         
-        setUsers([...users, response.data.user]);
-        setSuccess('Pengguna berhasil ditambahkan');
+        setResponseMsg(response.data.message);
         
       } else if (modalMode === 'edit' && currentUser) {
         const userData = {
@@ -127,43 +146,69 @@ const ManajemenUser = () => {
       } else {
         setError('Terjadi kesalahan, silakan coba lagi');
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteUser = async (userId) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setError('');
+      setIsLoading(true);
+      const response = await api.post('verify-otp', { email, otp });
+      setResponseMsg('User berhasil ditambahkan!');
+      setShowAlert(true);
+      setEmail('');
+      await fetchUsers();
+    } catch (err) {
+      setError(err.response?.data?.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteUser = (userId) => {
+    setUserToDelete(userId);
+    setShowConfirm(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (userToDelete === user.id) {
+      setError('Anda tidak dapat menghapus akun Anda sendiri');
+      setShowConfirm(false);
       return;
     }
-    if(userId === user.id) return setError('Anda tidak dapat menghapus akun Anda sendiri');
-    
+  
     try {
-      await api.delete(`admin/users/${userId}`);
-      setUsers(users.filter(user => user._id !== userId));
+      await api.delete(`admin/users/${userToDelete}`);
+      setUsers(users.filter((user) => user._id !== userToDelete));
       setSuccess('Pengguna berhasil dihapus');
-      
-      setTimeout(() => {
-        setSuccess('');
-      }, 3000);
-      
+      setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       console.error('Error deleting user:', error);
-      if (error.response?.data?.message) {
-        setError(error.response.data.message);
-      } else {
-        setError('Terjadi kesalahan saat menghapus pengguna');
-      }
-      
-      setTimeout(() => {
-        setError('');
-      }, 3000);
+      setError(error.response?.data?.message || 'Terjadi kesalahan saat menghapus pengguna');
+      setTimeout(() => setError(''), 3000);
+    } finally {
+      setShowConfirm(false);
+      setUserToDelete(null);
     }
   };
 
-const filteredUsers = users.filter(user => 
-  (user.name?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-  (user.email?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-  (user.role?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
-);
+  const handleShowAlert = () => {
+    setShowAlert(true);
+  };
+
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+    setResponseMsg('');
+  };
+
+  const filteredUsers = users.filter(user => 
+    (user.name?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
+    (user.email?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
+    (user.role?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
+  );
 
   const formatRole = (role) => {
     switch (role) {
@@ -213,6 +258,23 @@ const filteredUsers = users.filter(user =>
               <X size={16} />
             </button>
           </div>
+        )}
+
+        {responseMsg ? PopUp({ responseMsg, otp, setOtp, setResponseMsg, handleOtpSubmit }) : null}
+
+        {showConfirm && (
+          <ConfirmPopUp
+            message="Apakah Anda yakin ingin menghapus pengguna ini?"
+            onConfirm={confirmDeleteUser}
+            onCancel={() => setShowConfirm(false)}
+          />
+        )}
+
+        {showAlert && (
+          <AlertPopUp
+            message={responseMsg}
+            onClose={handleCloseAlert}
+          />
         )}
 
         <div className="p-6">
@@ -334,13 +396,6 @@ const filteredUsers = users.filter(user =>
               </div>
             )}
 
-            {success && (
-              <div className="mx-6 mt-4 bg-green-50 text-green-700 p-3 rounded-md flex items-start">
-                <Check className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-                <span className="text-sm">{success}</span>
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="p-6">
               <div className="mb-6 flex justify-center">
                 <div className="h-20 w-20 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
@@ -395,6 +450,21 @@ const filteredUsers = users.filter(user =>
                 </div>
 
                 <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                    Password {modalMode === 'add' && <span className="text-red-500">*</span>}
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required={modalMode === 'add'}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                    placeholder={modalMode === 'add' ? "Masukkan Konfirmasi password" : "Kosongkan jika tidak ingin diubah"}
+                  />
+                </div>
+
+                <div>
                   <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
                     Peran <span className="text-red-500">*</span>
                   </label>
@@ -422,9 +492,19 @@ const filteredUsers = users.filter(user =>
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  disabled={isSubmitting}
+                  className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ${
+                    isSubmitting ? 'bg-primary-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'
+                  }`}
                 >
-                  {modalMode === 'add' ? 'Tambah Pengguna' : 'Simpan Perubahan'}
+                  {isSubmitting && modalMode === 'add' ? (
+                    <svg className="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                  ) : (
+                    modalMode === 'add' ? 'Tambah Pengguna' : 'Simpan Perubahan'
+                  )}
                 </button>
               </div>
             </form>

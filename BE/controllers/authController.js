@@ -23,11 +23,15 @@ exports.register = async (req, res) => {
 
     otpStore.set(email, { otp, otpExpiry, name, password, role });
 
-    await sendEmail(email, 'Kode OTP Verifikasi', `Kode OTP kamu: ${otp}`);
+    // Send email asynchronously without awaiting
+    sendEmail(email, 'Kode OTP Verifikasi', `Kode OTP kamu: ${otp}`)
+      .catch(error => {
+        console.error('Error sending email:', error);
+      });
 
     res.json({ message: 'Kode OTP telah dikirim. Silakan verifikasi OTP untuk melanjutkan pendaftaran.' });
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error in registration:', error);
     res.status(500).json({ message: 'Server error', error});
   }
 }

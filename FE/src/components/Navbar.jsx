@@ -8,7 +8,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -28,22 +27,10 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
   return (
     <header className="bg-white shadow-sm z-10">
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex items-center md:hidden">
-            <button
-              onClick={toggleMobileMenu}
-              className="text-gray-500 hover:text-gray-700 focus:outline-none"
-            >
-              <Menu size={24} />
-            </button>
-          </div>
 
           <div className="flex-1 flex items-center justify-center md:justify-start">
             <div className="flex-shrink-0 md:hidden">

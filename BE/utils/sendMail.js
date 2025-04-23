@@ -11,7 +11,6 @@ const sendEmail = async (to, subject, text) => {
         pass: process.env.EMAIL_PASS,
       },
     });
-    await transporter.verify();
 
     await transporter.sendMail({
       from: `"Arsip Surat App" <no-reply@arsip-surat.com>`,
