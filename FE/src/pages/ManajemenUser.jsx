@@ -26,6 +26,7 @@ const ManajemenUser = () => {
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [numberPhone, setNumberPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('guru');
@@ -70,6 +71,7 @@ const ManajemenUser = () => {
     setCurrentUser(user);
     setName(user.name);
     setEmail(user.email);
+    setNumberPhone(user.phone);
     setPassword('');
     setRole(user.role);
     setShowModal(true);
@@ -77,6 +79,7 @@ const ManajemenUser = () => {
 
   const resetForm = () => {
     setName('');
+    setNumberPhone('');
     setPassword('');
     setConfirmPassword('');
     setRole('guru');
@@ -93,7 +96,7 @@ const ManajemenUser = () => {
       setIsSubmitting(true);
       
       if (modalMode === 'add') {
-        if (!name || !email || !password) {
+        if (!name || !email || !password || !numberPhone) {
           setError('Semua kolom harus diisi');
           setIsSubmitting(false);
           return;
@@ -110,6 +113,7 @@ const ManajemenUser = () => {
           email,
           password,
           role,
+          numberPhone
         });
         
         setResponseMsg(response.data.message);
@@ -119,6 +123,7 @@ const ManajemenUser = () => {
           name,
           email,
           role,
+          numberPhone
         };
         
         if (password) {
@@ -435,6 +440,21 @@ const ManajemenUser = () => {
                 </div>
 
                 <div>
+                  <label htmlFor="numberPhone" className="block text-sm font-medium text-gray-700 mb-1">
+                    Nomor HP <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="numberPhone"
+                    value={numberPhone}
+                    onChange={(e) => setNumberPhone(e.target.value)}
+                    required
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                    placeholder="Contoh 0822xxxxxxxx"
+                  />
+                </div>
+
+                <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                     Password {modalMode === 'add' && <span className="text-red-500">*</span>}
                   </label>
@@ -450,7 +470,7 @@ const ManajemenUser = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
                     Password {modalMode === 'add' && <span className="text-red-500">*</span>}
                   </label>
                   <input

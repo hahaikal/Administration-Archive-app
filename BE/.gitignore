@@ -6,3 +6,5 @@ coverage
 .env.development
 .env.production
 uploads
+
+utils/migrationAddPhoneToUsers.js

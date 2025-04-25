@@ -3,23 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { School, AlertCircle } from 'lucide-react';
 import api from '../services/api';
-import { PopUp } from '../components/PopUp';
+import { PopUp, AlertPopUp } from '../components/PopUp';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [numberPhone, setNumberPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [responseMsg, setResponseMsg] = useState('');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword || !numberPhone) {
       setError('All fields must be filled');
       return;
     }
@@ -35,6 +37,7 @@ const Register = () => {
       const user = {
         name,
         email,
+        numberPhone,
         password,
         role: 'guru'
       }
@@ -57,15 +60,19 @@ const Register = () => {
       setError('');
       setIsLoading(true);
       const response = await api.post('verify-otp', { email, otp });
-      alert(response.data.message);
+      setAlertMessage(response.data.message);
       setResponseMsg('');
-      navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleAlertClose = () => {
+    setAlertMessage('');
+    navigate('/login');
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -91,6 +98,10 @@ const Register = () => {
           )}
 
           {responseMsg ? PopUp({ responseMsg, otp, setOtp, setResponseMsg, handleOtpSubmit }) : null}
+
+          {alertMessage && (
+            <AlertPopUp message={alertMessage} onClose={() => handleAlertClose()} />
+          )}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
@@ -124,6 +135,24 @@ const Register = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="numberPhone" className="block text-sm font-medium text-gray-700">
+                Nomor HP
+              </label>
+              <div className="mt-1">
+                <input
+                  id="numberPhone"
+                  name="numberPhone"
+                  type="text"
+                  autoComplete="numberPhone"
+                  required
+                  value={numberPhone}
+                  onChange={(e) => setNumberPhone(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 />
               </div>

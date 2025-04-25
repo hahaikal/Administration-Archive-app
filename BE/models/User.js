@@ -11,6 +11,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  phone: {
+    type: String,
+    required: true,
+    unique: true
+  },
   password: {
     type: String,
     required: true,
@@ -19,7 +24,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["admin", "guru", "kepala sekolah"],
     default: "guru",
-  }
+  },
 }, { timestamps: true });
 
 userSchema.pre("save", async function (next) {

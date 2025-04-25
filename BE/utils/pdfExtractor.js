@@ -64,15 +64,12 @@ const extractFromPDF = async (filePath, category) => {
 };
 
 const removeStarsAndSpace = (input) => {
-  // Remove two asterisks and a space from the start of the string, e.g. "** 6 Januari 2025"
   return input.replace(/^\*\*\s*/, '');
 };
 
 const convertToDate = (input) => {
-  // Remove stars and space first
   const cleanedInput = removeStarsAndSpace(input);
 
-  // Map Indonesian month names to English
   const monthMap = {
     "Januari": "January",
     "Februari": "February",
@@ -88,10 +85,9 @@ const convertToDate = (input) => {
     "Desember": "December"
   };
 
-  // Expecting format like "6 Januari 2025"
   const parts = cleanedInput.trim().split(/\s+/);
   if (parts.length !== 3) {
-    return null; // Invalid format
+    return null;
   }
 
   const day = parseInt(parts[0], 10);
@@ -100,7 +96,7 @@ const convertToDate = (input) => {
 
   const monthEnglish = monthMap[monthName];
   if (!monthEnglish || isNaN(day) || isNaN(year)) {
-    return null; // Invalid date parts
+    return null;
   }
 
   const month = new Date(Date.parse(monthEnglish + " 1, 2021")).getMonth();

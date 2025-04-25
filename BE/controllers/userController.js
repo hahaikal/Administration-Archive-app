@@ -12,13 +12,13 @@ exports.getAllUsers = async (req, res) => {
 exports.updateUserRole = async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, email, role, password } = req.body;
+      const { name, email, role, password, numberPhone } = req.body;
   
       if (!["admin", "guru", "kepala sekolah"].includes(role)) {
         return res.status(400).json({ message: "Invalid Role" });
       }
   
-      const updateData = { name, email, role };
+      const updateData = { name, email, role, phone: numberPhone };
       if (password) {
         updateData.password = password;
       }

@@ -1,13 +1,19 @@
+
 import suratService from '../services/suratService';
 import { useState, useRef, useEffect } from 'react';
 import { File, Download, Trash2, Eye, MoreVertical } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { ConfirmPopUp, AlertPopUp} from './PopUp';
 
 const SuratCard = ({ surat, onDeleteSuccess }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { isAdmin } = useAuth();
   const [deleting, setDeleting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
   
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
@@ -46,32 +52,48 @@ const SuratCard = ({ surat, onDeleteSuccess }) => {
     }).format(date);
   };
 
-  const handleDownload = () => {
-    window.open(surat.fileUrl, '_blank');
-  };
-
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
 
-  const handleDelete = async (id) => {
+  const confirmDelete = async () => {
     if (deleting) return;
-    if (!window.confirm('Apakah Anda yakin ingin menghapus surat ini?')) return;
     try {
       setDeleting(true);
-      await suratService.delete(id);
-      alert('Surat berhasil dihapus');
-      if (onDeleteSuccess) {
-        onDeleteSuccess();
-      }
+      await suratService.delete(deleteId);
+      setAlertMessage('Surat berhasil dihapus!');
+      setShowAlert(true);
     } catch (error) {
-      alert('Gagal menghapus surat: ' + (error.message || error));
+      setAlertMessage('Gagal menghapus surat: ' + (error.message || error));
+      setShowAlert(true);
     } finally {
       setDeleting(false);
+      setShowConfirm(false);
+      setDeleteId(null);
     }
   };
 
+  const handleAlertClose = () => {
+    setShowAlert(false);
+    if (onDeleteSuccess) {
+      onDeleteSuccess();
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowConfirm(false);
+    setDeleteId(null);
+  };
+
+  const handleDelete = (id) => {
+    if (deleting) return;
+    setDeleteId(id);
+    setShowConfirm(true);
+  };
+
+
   return (
+    <>
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md">
       <div className="p-5">
         <div className="flex justify-between items-start">
@@ -91,13 +113,6 @@ const SuratCard = ({ surat, onDeleteSuccess }) => {
             {showDropdown && (
               <div ref={dropdownRef} className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
                 <div className="py-1">
-                  <button
-                    onClick={handleDownload}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                  >
-                    <Download size={16} className="mr-2" />
-                    Unduh Dokumen
-                  </button>
                   <Link
                     to={`/viewpdf?fileurl=${surat.fileUrl}`}
                     className="flex px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 items-center"
@@ -145,6 +160,22 @@ const SuratCard = ({ surat, onDeleteSuccess }) => {
         </div>
       </div>
     </div>
+
+    {showConfirm && (
+      <ConfirmPopUp
+        message="Apakah Anda yakin ingin menghapus surat ini?"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
+    )}
+    
+    {showAlert && (
+      <AlertPopUp
+        message={alertMessage}
+        onClose={handleAlertClose}
+      />
+    )}
+    </>
   );
 };
 

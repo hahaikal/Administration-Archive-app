@@ -11,7 +11,7 @@ const generateToken = (user) => {
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, numberPhone } = req.body;
     const existingEmail = await User.findOne({ email });
 
     if (existingEmail) {
@@ -21,9 +21,8 @@ exports.register = async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = Date.now() + 5 * 60 * 1000;
 
-    otpStore.set(email, { otp, otpExpiry, name, password, role });
+    otpStore.set(email, { otp, otpExpiry, name, password, role, numberPhone });
 
-    // Send email asynchronously without awaiting
     sendEmail(email, 'Kode OTP Verifikasi', `Kode OTP kamu: ${otp}`)
       .catch(error => {
         console.error('Error sending email:', error);
@@ -51,12 +50,13 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ message: 'OTP sudah kadaluarsa.' });
     }
 
-    const { name, password, role, otpExpiry} = otpData;
+    const { name, password, role, otpExpiry, numberPhone} = otpData;
     const otpp = otpData.otp
+    
     if (otpData.otp !== otp) {
-      return res.status(400).json({ message: 'OTP salah banget xixi.' , name, otpp, otpExpiry });
+      return res.status(400).json({ message: 'Kode OTP Salah' , name, otpp, otpExpiry });
     } else if (otpData.otp === otp) {
-      const user = new User({ name, email, password, role });
+      const user = new User({ name, email, password, role, phone: numberPhone });
       await user.save();
       otpStore.delete(email);
     }
