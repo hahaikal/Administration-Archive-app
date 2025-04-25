@@ -23,6 +23,15 @@ async function handleIncomingMessage(sock, msg) {
   }
 
   if (messageContent?.documentMessage?.mimetype === 'application/pdf') {
+    const phoneNumber = sender.split('@')[0];
+    try {
+      await axios.post('http://localhost:5000/admin/getPhoneNumber', { sender: phoneNumber });
+    } catch (error) {
+      await sock.sendMessage(sender, { text: "Nomor HP Anda tidak terdaftar di sistem." });
+      console.error("Error validating phone number:", error.message);
+      return;
+    }
+
     const buffer = await downloadMediaMessage(msg, 'buffer', {}, {
       logger: console,
       reuploadRequest: sock.updateMediaMessage
@@ -67,7 +76,7 @@ async function handleIncomingMessage(sock, msg) {
         await sock.sendMessage(sender, { text: `Gagal mengirim file: ${response.statusText}` });
       }
     } catch (error) {
-      await sock.sendMessage(sender, { text: `eror: Gagal mengirim file` });
+      await sock.sendMessage(sender, { text: error.response.data.message || 'Gagal mengirim file' });
       fs.unlinkSync(filePath);
       if (error.response) {
         console.error('Error uploading file to API:', error.response.status, error.response.data);

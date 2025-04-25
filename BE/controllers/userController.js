@@ -10,39 +10,55 @@ exports.getAllUsers = async (req, res) => {
 };
 
 exports.updateUserRole = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { name, email, role, password, numberPhone } = req.body;
-  
-      if (!["admin", "guru", "kepala sekolah"].includes(role)) {
-        return res.status(400).json({ message: "Invalid Role" });
-      }
-  
-      const updateData = { name, email, role, phone: numberPhone };
-      if (password) {
-        updateData.password = password;
-      }
+  try {
+    const { id } = req.params;
+    const { name, email, role, password, numberPhone } = req.body;
 
-      const user = await User.findByIdAndUpdate(id, updateData, { new: true });
-  
-      if (!user) return res.status(404).json({ message: "User not Found" });
-  
-      res.json({ message: "User role successfully updated", user });
-    } catch (err) {
-      res.status(500).json({ message: "Failed to Update Role", err });
+    if (!["admin", "guru", "kepala sekolah"].includes(role)) {
+      return res.status(400).json({ message: "Invalid Role" });
     }
+
+    const updateData = { name, email, role, phone: numberPhone };
+    if (password) {
+      updateData.password = password;
+    }
+
+    const user = await User.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (!user) return res.status(404).json({ message: "User not Found" });
+
+    res.json({ message: "User role successfully updated", user });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to Update Role", err });
+  }
 };
 
 exports.deleteUser = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const user = await User.findByIdAndDelete(id);
-      if (!user) return res.status(404).json({ message: "User not Found" });
-  
-      res.json({ message: "Succesfully deleted user" });
-    } catch (err) {
-      res.status(500).json({ message: "Failed to delete user", err });
-    }
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByIdAndDelete(id);
+    if (!user) return res.status(404).json({ message: "User not Found" });
+
+    res.json({ message: "Succesfully deleted user" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete user", err });
+  }
 };
-  
+
+exports.getPhoneNumber = async (req, res) => {
+  try {
+    let { sender } = req.body;
+
+    if (sender.startsWith('62')) {
+      sender = '0' + sender.slice(2);
+    }
+
+    const user = await User.findOne({ phone: sender }).select("phone name");
+    if (!user) return res.status(404).json({ message: "User not Found" });
+
+    res.json({ phone: user.phone, name: user.name });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to retrieve phone number", err });
+  }
+};

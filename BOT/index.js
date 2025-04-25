@@ -4,7 +4,6 @@ const { blue, green, cyan, red } = require('chalk');
 const { createInterface } = require('readline');
 const chalk = require('chalk');
 const { handleIncomingMessage } = require('./services/whatsAppService');
-require('dotenv').config();
 
 const usePairingCode = true
 
@@ -76,5 +75,4 @@ async function connectToWhatsApp () {
   })
 }
 
-// jalankan koneksi
 connectToWhatsApp()

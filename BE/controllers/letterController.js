@@ -42,6 +42,11 @@ exports.uploadLetterFromWhatsApp = async (req, res) => {
     title = removeStarsAndSpace(judul);
     date = convertToDate(tanggal);
 
+    const letterResponse = await Letter.findOne({ number: number })
+    if (letterResponse) {
+      return res.status(404).json({ message: "Nomor surat duplikat atau sudah pernah di kirim sebelumnya" });
+    }
+
     const letter = await Letter.create({
       number,
       title,

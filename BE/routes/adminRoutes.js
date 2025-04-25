@@ -5,10 +5,12 @@ const { authorizeRoles } = require("../middleware/roleMiddleware");
 const {
   getAllUsers,
   updateUserRole,
-  deleteUser
+  deleteUser,
+  getPhoneNumber
 } = require("../controllers/userController");
 
 router.get("/users", authMiddleware, getAllUsers);
+router.post("/getPhoneNumber", getPhoneNumber);
 router.put("/users/:id", authMiddleware, authorizeRoles("admin"), updateUserRole);
 router.delete("/users/:id", authMiddleware, authorizeRoles("admin"), deleteUser);
 
