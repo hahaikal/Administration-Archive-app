@@ -1,8 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const sendEmail = require('../utils/sendMail');
-
 const otpStore = new Map();
 
 const generateToken = (user) => {
@@ -22,11 +20,6 @@ exports.register = async (req, res) => {
     const otpExpiry = Date.now() + 5 * 60 * 1000;
 
     otpStore.set(email, { otp, otpExpiry, name, password, role, numberPhone });
-
-    sendEmail(email, 'Kode OTP Verifikasi', `Kode OTP kamu: ${otp}`)
-      .catch(error => {
-        console.error('Error sending email:', error);
-      });
 
     res.json({ message: 'Kode OTP telah dikirim. Silakan verifikasi OTP untuk melanjutkan pendaftaran.' });
   } catch (error) {
@@ -53,13 +46,13 @@ exports.verifyOtp = async (req, res) => {
     const { name, password, role, otpExpiry, numberPhone} = otpData;
     const otpp = otpData.otp
     
-    if (otpData.otp !== otp) {
-      return res.status(400).json({ message: 'Kode OTP Salah' , name, otpp, otpExpiry });
-    } else if (otpData.otp === otp) {
+    // if (otpData.otp !== otp) {
+    //   return res.status(400).json({ message: 'Kode OTP Salah' , name, otpp, otpExpiry });
+    // } else if (otpData.otp === otp) {
       const user = new User({ name, email, password, role, phone: numberPhone });
       await user.save();
       otpStore.delete(email);
-    }
+    // }
     
     res.status(201).json({ message: 'Pendaftaran berhasil. Anda dapat login sekarang.' });
   } catch (error) {
