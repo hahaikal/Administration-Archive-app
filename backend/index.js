@@ -18,10 +18,7 @@ app.use("/", authRoutes);
 app.use("/", letterRoutes);
 app.use("/admin", adminRoutes);
 
-app.use(express.static(path.join(__dirname, "../FE/dist")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../FE/dist/index.html"));
-});
+module.exports = app;
 
 module.exports = app;
+module.exports.handler = serverless(app); 
