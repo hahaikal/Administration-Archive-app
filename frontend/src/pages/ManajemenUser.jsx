@@ -81,7 +81,6 @@ const ManajemenUser = () => {
     setName('');
     setNumberPhone('');
     setPassword('');
-    setEmail('')
     setConfirmPassword('');
     setRole('guru');
     setError('');

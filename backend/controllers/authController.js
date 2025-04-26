@@ -28,7 +28,7 @@ exports.register = async (req, res) => {
   }
 }
 
-exports.verifyOtp = async (req, res) => {
+exports.verifyOtp = async (req, res) => { 
   try {
     const { email, otp } = req.body;
 
