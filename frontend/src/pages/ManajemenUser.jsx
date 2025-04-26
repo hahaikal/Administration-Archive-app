@@ -43,7 +43,7 @@ const ManajemenUser = () => {
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const response = await api.get('admin/users');
+      const response = await api.get('/admin/users');
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -108,7 +108,7 @@ const ManajemenUser = () => {
           return;
         }
 
-        const response = await api.post('register', {
+        const response = await api.post('/register', {
           name,
           email,
           password,
@@ -130,7 +130,7 @@ const ManajemenUser = () => {
           userData.password = password;
         }
         
-        const response = await api.put(`admin/users/${currentUser._id}`, userData);
+        const response = await api.put(`/admin/users/${currentUser._id}`, userData);
         
         setUsers(users.map(user => 
           user._id === currentUser._id ? response.data.user : user
@@ -161,7 +161,7 @@ const ManajemenUser = () => {
     try {
       setError('');
       setIsLoading(true);
-      const response = await api.post('verify-otp', { email, otp });
+      const response = await api.post('/verify-otp', { email, otp });
       setResponseMsg('User berhasil ditambahkan!');
       setShowAlert(true);
       setEmail('');
@@ -186,7 +186,7 @@ const ManajemenUser = () => {
     }
   
     try {
-      await api.delete(`admin/users/${userToDelete}`);
+      await api.delete(`/admin/users/${userToDelete}`);
       setUsers(users.filter((user) => user._id !== userToDelete));
       setSuccess('Pengguna berhasil dihapus');
       setTimeout(() => setSuccess(''), 3000);

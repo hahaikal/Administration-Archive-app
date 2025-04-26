@@ -2,7 +2,7 @@ import api from './api';
  
  const suratService = {
    getAll: async (filters = {}) => {
-     const response = await api.get('getAllDoc', { params: filters });
+     const response = await api.get('/getAllDoc', { params: filters });
      return response.data;
    },
  
@@ -12,7 +12,7 @@ import api from './api';
    },
  
    create: async (formData) => {
-     const response = await api.post('upload', formData, {
+     const response = await api.post('/upload', formData, {
        headers: {
          'Content-Type': 'multipart/form-data',
        },
@@ -35,8 +35,8 @@ import api from './api';
    },
  
    getStatistics: async () => {
-     const letterResponse = await api.get('getAllDoc');
-     const userResponse = await api.get('admin/users');
+     const letterResponse = await api.get('/getAllDoc');
+     const userResponse = await api.get('/admin/users');
      const letters = letterResponse.data.data;
  
      const suratByJenis = {};

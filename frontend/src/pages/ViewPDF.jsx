@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import api from '../services/api';
 
 const ViewPDF = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const ViewPDF = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`http://localhost:5000/${filePath}`);
+        const response = await api.get(`/${filePath}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
