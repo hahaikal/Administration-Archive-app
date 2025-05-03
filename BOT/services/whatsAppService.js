@@ -5,6 +5,7 @@ const pdfParse = require('pdf-parse');
 const FormData = require('form-data');
 const { askGemini } = require('../gemini/aiController');
 const axios = require('axios');
+require('dotenv').config();
 
 const downloadsDir = path.join(__dirname, '..', 'downloads');
 
@@ -13,19 +14,26 @@ if (!fs.existsSync(downloadsDir)) {
 }
 
 async function handleIncomingMessage(sock, msg) {
+  if (msg.key.fromMe) {
+    return;
+  }
+
   const sender = msg.key.remoteJid;
   const messageContent = msg.message;
-
-  if (messageContent?.conversation) {
-    const prompt = messageContent.conversation;
+  const prompt = messageContent?.conversation || messageContent?.extendedTextMessage?.text;
+  if (prompt) {
     const reply = await askGemini(prompt);
-    await sock.sendMessage(sender, { text: reply });
+    try {
+      await sock.sendMessage(sender, { text: reply });
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   }
 
   if (messageContent?.documentMessage?.mimetype === 'application/pdf') {
     const phoneNumber = sender.split('@')[0];
     try {
-      await axios.post('http://localhost:5000/admin/getPhoneNumber', { sender: phoneNumber });
+      await axios.post(process.env.API_GET_PHONE_NUMBER , { sender: phoneNumber });
     } catch (error) {
       await sock.sendMessage(sender, { text: "Nomor HP Anda tidak terdaftar di sistem." });
       console.error("Error validating phone number:", error.message);
@@ -35,7 +43,7 @@ async function handleIncomingMessage(sock, msg) {
     const buffer = await downloadMediaMessage(msg, 'buffer', {}, {
       logger: console,
       reuploadRequest: sock.updateMediaMessage
-    });
+    }); 
 
     const fileName = `${Date.now()}.pdf`;
     const filePath = path.join(downloadsDir, fileName);
@@ -45,8 +53,7 @@ async function handleIncomingMessage(sock, msg) {
     const data = await pdfParse(buffer);
     const textFromPDF = data.text;
 
-    const reply = await askGemini(`Beritahu saya hanya judul, nomor dan tanggal pdf ini. formatnya hanya \njudul: (jika tidak yakin bikin not found)\n nomor: (hanya nomor yang didapat \n tanggal:) :\n\n${textFromPDF}`);
-
+    const reply = await askGemini(`Beritahu saya hanya judul, nomor dan tanggal pdf ini. formatnya hanya \njudul: (jika tidak yakin bikin not found)\n nomor: (hanya nomor yang didapat) \n tanggal (hanya tanggal, contoh: 1 januari 2025):) :\n\n${textFromPDF}`);
     const judulMatch = reply.match(/Judul:\s*(.*)/i);
     const nomorMatch = reply.match(/Nomor:\s*(.*)/i);
     const tanggalMatch = reply.match(/Tanggal:\s*(.*)/i);
@@ -62,7 +69,7 @@ async function handleIncomingMessage(sock, msg) {
     formData.append('file', fs.createReadStream(filePath));
 
     try {
-      const response = await axios.post('http://localhost:5000/botwa/uploadFromWhatsApp', formData, {
+      const response = await axios.post(process.env.API_SEND_FILE , formData, {
         headers: {
           ...formData.getHeaders()
         }

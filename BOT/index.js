@@ -3,22 +3,10 @@ const pino = require('pino');
 const { blue, green, cyan, red } = require('chalk');
 const { createInterface } = require('readline');
 const chalk = require('chalk');
+const qrcode = require('qrcode-terminal');
 const { handleIncomingMessage } = require('./services/whatsAppService');
 
-const usePairingCode = true
-
-async function qustion (quest) {
-  process.stdout.write(quest)
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout
-  })
-
-  return new Promise((resolve) => rl.question('', (answer) => {
-    rl.close()
-    resolve(answer)
-  }))
-}
+const usePairingCode = false
 
 async function connectToWhatsApp () {
   console.log(blue('Connecting to WhatsApp...'))
@@ -26,23 +14,20 @@ async function connectToWhatsApp () {
 
   const bot = makeWASocket({
     logger: pino({ level: 'silent' }),
-    printQRInTerminal: !usePairingCode,
+    printQRInTerminal: true,
     auth: state,
     browser: ['Ubuntu', 'Chrome', '20.0.04'],
     version: [2, 3000, 1015901307]
   })
 
-  if (usePairingCode && !bot.authState.creds.registered) {
-    console.log(green('Masukkan nomor dengan awal 62, contoh: 6281234567890'))
-    const phoneNumber = await qustion('> ')
-    const code = await bot.requestPairingCode(phoneNumber.trim())
-    console.log(cyan('Pairing code: ' + code))
-  }
-
   bot.ev.on('creds.update', saveCreds)
 
   bot.ev.on('connection.update', async (update) => {
-    const { connection, lastDisconnect } = update
+    const { connection, lastDisconnect, qr } = update
+    if (qr) {
+      console.log(cyan('QR Code received, scan please:'))
+      qrcode.generate(qr, { small: true })
+    }
     if (connection === 'close') {
       if ((lastDisconnect.error)?.output?.statusCode !== 401) {
         console.log(red('Connection closed. Reconnecting...'))

@@ -24,18 +24,14 @@ const ViewPDF = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await api.get(`/${filePath}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const contentType = response.headers.get('content-type');
+        const response = await api.get(`/${filePath}`, { responseType: 'blob' });
+        const contentType = response.headers['content-type'];
         setFileType(contentType);
-        const blob = await response.blob();
+        const blob = response.data;
         const url = URL.createObjectURL(blob);
         setFileUrl(url);
       } catch (err) {
         setError(err.message);
-        console.log(file)
       } finally {
         setLoading(false);
       }
@@ -64,8 +60,8 @@ const ViewPDF = () => {
       <div className="p-4">
         <h2 className="text-xl font-semibold mb-4">PDF Viewer</h2>
         <p>Error loading file: {error}</p>
-        <button
-          onClick={() => navigate(-1)}
+<button
+          onClick={() => window.history.back()}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Kembali
@@ -79,8 +75,8 @@ const ViewPDF = () => {
       <div className="p-4">
         <h2 className="text-xl font-semibold mb-4">PDF Viewer</h2>
         <p>Tidak ada file yang tersedia.</p>
-        <button
-          onClick={() => navigate(-1)}
+<button
+          onClick={() => window.history.back()}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Kembali
@@ -94,7 +90,7 @@ const ViewPDF = () => {
       <header className="p-4 bg-gray-100 border-b border-gray-300 flex items-center justify-between">
         <h2 className="text-xl font-semibold">PDF Viewer</h2>
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => window.history.back()}
           className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Kembali

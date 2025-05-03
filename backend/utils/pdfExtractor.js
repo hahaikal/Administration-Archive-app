@@ -73,6 +73,7 @@ const convertToDate = (input) => {
   const monthMap = {
     "Januari": "January",
     "Februari": "February",
+    "Febuari": "February",
     "Maret": "March",
     "April": "April",
     "Mei": "May",
