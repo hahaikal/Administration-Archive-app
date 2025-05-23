@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: sipas-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - mongo
+    command: /bin/sh -c "npm install && npm start"
+
+  frontend:
+    build: ./frontend
+    container_name: sipas-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    env_file:
+      - ./frontend/.env.development
+    depends_on:
+      - backend
+    command: /bin/sh -c "npm install && npm start"
+
+  mongo:
+    image: mongo:6
+    container_name: sipas-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
