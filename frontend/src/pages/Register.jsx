@@ -41,7 +41,7 @@ const Register = () => {
         password,
         role: 'guru'
       }
-      const respon = await api.post('register', user)
+      const respon = await api.post('/register', user)
       setResponseMsg(respon.data.message);
     } catch (err) {
       if (err.response?.data?.message) {
@@ -59,7 +59,7 @@ const Register = () => {
     try {
       setError('');
       setIsLoading(true);
-      const response = await api.post('verify-otp', { email, otp });
+      const response = await api.post('/verify-otp', { email, otp });
       setAlertMessage(response.data.message);
       setResponseMsg('');
     } catch (err) {

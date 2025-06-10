@@ -18,15 +18,15 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
-      <Route path="register" element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />} />
+      <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />} />
       
       <Route path="/" element={<ProtectedRoute />}>
         <Route index element={<Navigate to="/dashboard" />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="upload" element={<UploadSurat />} />
-        <Route path="users" element={<ManajemenUser />} />
-        <Route path="arsip" element={<DaftarArsip />} />
-        <Route path="viewpdf" element={<ViewPDF />} />
+        <Route path="/upload" element={<UploadSurat />} />
+        <Route path="/users" element={<ManajemenUser />} />
+        <Route path="/arsip" element={<DaftarArsip />} />
+        <Route path="/viewpdf" element={<ViewPDF />} />
       </Route>
       
       <Route path="*" element={<NotFound />} />

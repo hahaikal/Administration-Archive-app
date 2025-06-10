@@ -5,10 +5,8 @@ require('dotenv').config();
 const PORT = process.env.PORT;
 const mongoURI = process.env.ATLAS_CONNECTION;
 
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(() => {
+mongoose.connect(mongoURI)
+.then(() => {
     console.log("MongoDB connected successfully");
 }).catch(err => {
     console.error("MongoDB connection error:", err);

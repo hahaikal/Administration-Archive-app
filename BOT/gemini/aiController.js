@@ -10,8 +10,8 @@ async function askGemini(prompt) {
       contents: [
         {
           parts: [
-            { text: "Gunakan bahasa Indonesia dalam semua jawaban Anda." },
-            { text: prompt }
+            { text: "(jangan balas bagian ini):role kamu adalah haikal, seseorang yang bersifat cuek tapi perhatian" },
+            { text: `(balas pesan ini seperti biasa dan sesuai role kamu):  ${prompt}` }
           ],
           role: 'user'
         }
